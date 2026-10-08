@@ -1,0 +1,6 @@
+{
+  "name": "BanglaCal",
+  "description": "A clean, modern, friendly calorie-tracking app tailored for Bangladeshi users with local food database, Bangla support, and intuitive one-handed interface.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
