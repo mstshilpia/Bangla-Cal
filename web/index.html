@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BanglaCal - বাংলা ক্যালোরি ট্র্যাকার</title>
+  
+  <!-- Google Fonts: Hind Siliguri -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#e8f6f0',
+              100: '#d1edd1',
+              500: '#0e7a53',
+              600: '#0a583c',
+              700: '#063f2b'
+            },
+            flame: {
+              500: '#ff7a00',
+              600: '#ea580c'
+            },
+            macro: {
+              protein: '#e11d48',
+              carbs: '#d97706',
+              fat: '#0891b2'
+            }
+          },
+          fontFamily: {
+            sans: ['"Hind Siliguri"', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Hind Siliguri', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Hide scrollbar for clean mobile view */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-[#f7f9f7] text-[#14241b] min-h-screen flex justify-center selection:bg-brand-100">
+
+  <!-- Mobile Container (Max 480px width for authentic mobile-first feel) -->
+  <div id="app" class="w-full max-w-md min-h-screen bg-white shadow-xl flex flex-col relative pb-20">
+
+    <!-- Top Navigation / Header -->
+    <header class="px-5 pt-6 pb-3 bg-white sticky top-0 z-20 border-b border-[#eaeaea] flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold text-brand-500 tracking-tight flex items-center gap-1.5">
+          <span>🌿</span> BanglaCal
+        </h1>
+        <p class="text-xs text-gray-500">বাংলা ক্যালোরি ট্র্যাকার</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="langToggleBtn" class="text-xs px-2.5 py-1 rounded-full bg-brand-50 text-brand-600 font-semibold border border-brand-100">
+          বাংলা / EN
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Screens Container -->
+    <main class="flex-1 p-4 overflow-y-auto no-scrollbar">
+
+      <!-- ================= 1. HOME SCREEN ================= -->
+      <section id="screen-home" class="space-y-4">
+        <!-- Greeting -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-gray-900">Good morning 👋</h2>
+            <p class="text-sm font-semibold text-brand-500">আজকের খাবারের হিসাব</p>
+          </div>
+          <span class="text-xs font-semibold px-2.5 py-1 bg-green-50 text-brand-600 rounded-full border border-green-200">
+            আজ, ৮ অক্টোবর
+          </span>
+        </div>
+
+        <!-- Calorie Circular Progress Card -->
+        <div class="bg-white border border-[#e2e8e4] rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+              <span>🔥</span> দৈনিক ক্যালোরি অগ্রগতি
+            </span>
+            <span class="text-xs font-bold text-flame-600 bg-orange-50 px-2 py-0.5 rounded-full">
+              লক্ষ্য: 2,000 kcal
+            </span>
+          </div>
+
+          <div class="flex items-center justify-around">
+            <!-- Circular Gauge -->
+            <div class="relative w-36 h-36 flex items-center justify-center">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#e4f7ee" stroke-width="12"></circle>
+                <circle id="homeCircleProgress" cx="50" cy="50" r="42" fill="none" stroke="#0e7a53" stroke-width="12"
+                        stroke-dasharray="264" stroke-dashoffset="99" stroke-linecap="round"></circle>
+              </svg>
+              <div class="absolute flex flex-col items-center text-center">
+                <span id="homeRemainingCal" class="text-2xl font-extrabold text-gray-900">750</span>
+                <span class="text-xs font-bold text-brand-500 leading-none">kcal বাকি</span>
+                <span class="text-[10px] text-gray-400">Remaining</span>
+              </div>
+            </div>
+
+            <!-- Stats Column -->
+            <div class="space-y-2 text-xs">
+              <div>
+                <p class="text-gray-500">গৃহীত (Consumed)</p>
+                <p id="homeConsumedCal" class="text-base font-bold text-flame-600">1,250 kcal</p>
+              </div>
+              <div>
+                <p class="text-gray-500">লক্ষ্য (Goal)</p>
+                <p class="text-base font-bold text-gray-800">2,000 kcal</p>
+              </div>
+              <div>
+                <p class="text-gray-500">বাকি (Remaining)</p>
+                <p class="text-base font-bold text-brand-500">750 kcal</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Macros Breakdown Card -->
+        <div class="bg-white border border-[#e2e8e4] rounded-2xl p-4 shadow-sm space-y-3">
+          <h3 class="text-sm font-bold text-gray-800">ম্যাক্রোনিউট্রিয়েন্ট (Macronutrients)</h3>
+
+          <!-- Protein -->
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-gray-700 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-macro-protein"></span> প্রোটিন (Protein)</span>
+              <span id="homeProteinVal" class="text-gray-900">65g / 120g</span>
+            </div>
+            <div class="w-full bg-rose-100 h-2 rounded-full overflow-hidden">
+              <div id="homeProteinBar" class="bg-macro-protein h-full rounded-full" style="width: 54%"></div>
+            </div>
+          </div>
+
+          <!-- Carbs -->
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-gray-700 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-macro-carbs"></span> শর্করা (Carbs)</span>
+              <span id="homeCarbsVal" class="text-gray-900">160g / 250g</span>
+            </div>
+            <div class="w-full bg-amber-100 h-2 rounded-full overflow-hidden">
+              <div id="homeCarbsBar" class="bg-macro-carbs h-full rounded-full" style="width: 64%"></div>
+            </div>
+          </div>
+
+          <!-- Fat -->
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-gray-700 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-macro-fat"></span> চর্বি (Fat)</span>
+              <span id="homeFatVal" class="text-gray-900">40g / 65g</span>
+            </div>
+            <div class="w-full bg-cyan-100 h-2 rounded-full overflow-hidden">
+              <div id="homeFatBar" class="bg-macro-fat h-full rounded-full" style="width: 61%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meals List -->
+        <div class="space-y-2">
+          <h3 class="text-sm font-bold text-gray-800">খাবারের তালিকা (Meals)</h3>
+
+          <!-- Breakfast -->
+          <div onclick="navigateToAddFood('BREAKFAST')" class="cursor-pointer bg-white border border-[#e8ede9] rounded-2xl p-3.5 flex items-center justify-between hover:border-brand-500 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-lg">🍳</div>
+              <div>
+                <h4 class="text-sm font-bold text-gray-900">Breakfast (সকালের নাস্তা)</h4>
+                <p class="text-xs text-gray-500">২টি রুটি, ১টি ডিম, ১ কাপ চা</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-1 bg-orange-50 text-flame-600 rounded-full">390 kcal</span>
+          </div>
+
+          <!-- Lunch -->
+          <div onclick="navigateToAddFood('LUNCH')" class="cursor-pointer bg-white border border-[#e8ede9] rounded-2xl p-3.5 flex items-center justify-between hover:border-brand-500 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-lg">🍛</div>
+              <div>
+                <h4 class="text-sm font-bold text-gray-900">Lunch (দুপুরের খাবার)</h4>
+                <p class="text-xs text-gray-500">২ প্লেট ভাত, রুই মাছ, ডাল</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-1 bg-orange-50 text-flame-600 rounded-full">520 kcal</span>
+          </div>
+
+          <!-- Snack -->
+          <div onclick="navigateToAddFood('SNACK')" class="cursor-pointer bg-white border border-[#e8ede9] rounded-2xl p-3.5 flex items-center justify-between hover:border-brand-500 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-lg">☕</div>
+              <div>
+                <h4 class="text-sm font-bold text-gray-900">Snack (বিকালের নাস্তা)</h4>
+                <p class="text-xs text-gray-500">১টি কলা, বিস্কুট</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-1 bg-orange-50 text-flame-600 rounded-full">340 kcal</span>
+          </div>
+
+          <!-- Dinner -->
+          <div onclick="navigateToAddFood('DINNER')" class="cursor-pointer bg-white border border-[#e8ede9] rounded-2xl p-3.5 flex items-center justify-between hover:border-brand-500 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-lg">🍲</div>
+              <div>
+                <h4 class="text-sm font-bold text-gray-900">Dinner (রাতের খাবার)</h4>
+                <p class="text-xs text-gray-400">এখনও যোগ করা হয়নি</p>
+              </div>
+            </div>
+            <button class="text-xs font-bold px-3 py-1 bg-brand-50 text-brand-600 rounded-full border border-brand-200">
+              + যোগ করুন
+            </button>
+          </div>
+        </div>
+
+        <!-- Prominent Add Food Button -->
+        <button onclick="navigateToAddFood('LUNCH')" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl shadow-sm flex items-center justify-center gap-2 text-base transition">
+          <span>+</span> খাবার যোগ করুন (Add Food)
+        </button>
+      </section>
+
+      <!-- ================= 2. ADD FOOD SCREEN ================= -->
+      <section id="screen-add-food" class="hidden space-y-4">
+        <div class="flex items-center gap-2 mb-2">
+          <button onclick="switchTab('home')" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full">
+            ←
+          </button>
+          <h2 class="text-lg font-bold text-gray-900">খাবার যোগ করুন</h2>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-bold text-brand-500">কি খেয়েছেন?</h3>
+          <p class="text-sm text-gray-500">What did you eat?</p>
+          <p class="text-xs text-gray-400 mt-1">সহজ বাংলায় বা ইংরেজিতে লিখে জানান, বাকিটা হিসাব করে দেব।</p>
+        </div>
+
+        <!-- Quick suggestion chips -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+          <button onclick="setPromptText('দুপুরে ২ প্লেট ভাত, ১ পিস রুই মাছ আর ডাল খেয়েছি')" class="whitespace-nowrap px-3 py-1 text-xs bg-gray-100 rounded-full border border-gray-200 text-gray-700">
+            ২ প্লেট ভাত, রুই মাছ ও ডাল
+          </button>
+          <button onclick="setPromptText('সকালে ২টি আটার রুটি, ১টি ডিম ভাজি আর লাল চা খেয়েছি')" class="whitespace-nowrap px-3 py-1 text-xs bg-gray-100 rounded-full border border-gray-200 text-gray-700">
+            ২টি রুটি ও ১টি ডিম
+          </button>
+          <button onclick="setPromptText('১ কাপ দুধ চা ও ২টি সিংগাড়া')" class="whitespace-nowrap px-3 py-1 text-xs bg-gray-100 rounded-full border border-gray-200 text-gray-700">
+            দুধ চা ও সিংগাড়া
+          </button>
+        </div>
+
+        <!-- Natural Language Input Area -->
+        <div class="space-y-3">
+          <textarea id="naturalFoodInput" rows="4" 
+            placeholder="যেমন: দুপুরে ২ প্লেট ভাত, ১ পিস রুই মাছ আর ডাল খেয়েছি"
+            class="w-full p-4 border border-[#d6e2d9] rounded-2xl focus:ring-2 focus:ring-brand-500 focus:outline-none text-base resize-none">দুপুরে ২ প্লেট ভাত, ১ পিস রুই মাছ আর ডাল খেয়েছি</textarea>
+
+          <button id="analyzeBtn" onclick="analyzeFoodInput()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition">
+            ✨ Analyze Food (খাবার বিশ্লেষণ করুন)
+          </button>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="analyzeLoading" class="hidden text-center py-4 text-brand-500 font-semibold text-sm">
+          ⏳ পুষ্টিমান ও ক্যালোরি হিসাব করা হচ্ছে...
+        </div>
+
+        <!-- AI Detected Result Card -->
+        <div id="analyzeResultCard" class="bg-white border-2 border-brand-500 rounded-2xl p-4 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-brand-500 flex items-center gap-1.5">
+              <span>✨</span> AI detected:
+            </span>
+            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold">৩টি খাবার</span>
+          </div>
+
+          <!-- Detected items -->
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl">
+              <span class="font-semibold">🍚 ভাত × 2 প্লেট</span>
+              <span class="font-bold text-flame-600">~400 kcal</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl">
+              <span class="font-semibold">🐟 রুই মাছ × 1 পিস</span>
+              <span class="font-bold text-flame-600">~150 kcal</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl">
+              <span class="font-semibold">🥣 ডাল × 1 বাটি</span>
+              <span class="font-bold text-flame-600">~70 kcal</span>
+            </div>
+          </div>
+
+          <!-- Estimated Total -->
+          <div class="bg-orange-50 border border-orange-100 rounded-xl p-3 flex justify-between items-center">
+            <div>
+              <p class="text-xs text-flame-600">Estimated calories</p>
+              <p class="text-xl font-extrabold text-flame-600">~620 kcal</p>
+            </div>
+            <span class="text-[11px] bg-white text-flame-600 px-2 py-0.5 rounded-full border border-orange-200">
+              *আনুমানিক হিসাব
+            </span>
+          </div>
+
+          <!-- Estimated Nutrition -->
+          <div>
+            <p class="text-xs font-bold text-gray-700 mb-2">Estimated nutrition:</p>
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+              <div class="p-2 bg-rose-50 text-macro-protein rounded-xl font-bold">Protein: 28g</div>
+              <div class="p-2 bg-amber-50 text-macro-carbs rounded-xl font-bold">Carbs: 82g</div>
+              <div class="p-2 bg-cyan-50 text-macro-fat rounded-xl font-bold">Fat: 18g</div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-y-2 pt-2">
+            <button onclick="saveMealAndGoDiary(620)" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl transition">
+              Add to Lunch (দুপুরের খাবারে যোগ করুন)
+            </button>
+            <button onclick="openConfirmationScreen()" class="w-full py-3 bg-white border border-brand-500 text-brand-600 font-bold rounded-xl hover:bg-green-50 transition">
+              পরিমাণ সংশোধন করুন (Review & Edit)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. FOOD CONFIRMATION SCREEN ================= -->
+      <section id="screen-confirm" class="hidden space-y-4">
+        <div class="flex items-center gap-2 mb-2">
+          <button onclick="switchTab('add-food')" class="p-2 text-gray-600 hover:bg-gray-100 rounded-full">
+            ←
+          </button>
+          <h2 class="text-lg font-bold text-gray-900">খাবার যাচাই ও নিশ্চিতকরণ</h2>
+        </div>
+
+        <!-- Banner -->
+        <div class="bg-green-50 border border-green-200 p-3.5 rounded-2xl flex items-start gap-2.5">
+          <span class="text-brand-500 text-lg">ℹ️</span>
+          <div>
+            <h4 class="text-xs font-bold text-brand-600">AI বিশ্লেষণ সংশোধন করুন</h4>
+            <p class="text-[11px] text-gray-600">সংরক্ষণ করার আগে যেকোনো পরিমাণ বা একক পরিবর্তন অথবা বাদ দিতে পারেন।</p>
+          </div>
+        </div>
+
+        <!-- Editable Foods Container -->
+        <div id="editableFoodsList" class="space-y-3">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Add Another Food Button -->
+        <button onclick="promptAddAnotherFood()" class="w-full py-2.5 border-2 border-dashed border-gray-300 hover:border-brand-500 text-gray-600 hover:text-brand-600 font-bold rounded-2xl text-xs transition">
+          + আরেকটি খাবার যোগ করুন (Add Another Food)
+        </button>
+
+        <!-- Sticky Summary & Save Button -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-md space-y-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-xs text-gray-500">মোট পুষ্টিমান (Total)</p>
+              <p id="confirmTotalKcal" class="text-xl font-bold text-flame-600">~620 kcal</p>
+            </div>
+            <div id="confirmMacros" class="text-xs text-gray-500 font-medium">
+              P: 28g • C: 82g • F: 18g
+            </div>
+          </div>
+
+          <button onclick="saveMealAndGoDiary(null)" class="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl transition">
+            Add to Lunch (দুপুরের খাবারে যোগ করুন)
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= 4. DIARY SCREEN ================= -->
+      <section id="screen-diary" class="hidden space-y-4">
+        <div>
+          <h2 class="text-xl font-bold text-gray-900">October 8, 2026</h2>
+          <p class="text-sm font-semibold text-brand-500">Thursday (বৃহস্পতিবার)</p>
+        </div>
+
+        <!-- Daily Summary Card -->
+        <div class="bg-white border border-[#e2e8e4] rounded-2xl p-4 flex justify-between items-center shadow-sm">
+          <div>
+            <p class="text-xs text-gray-500">দৈনিক ক্যালোরি হিসাব (Daily Summary)</p>
+            <p id="diaryTotalSummary" class="text-xl font-extrabold text-flame-600">1,250 / 2,000 kcal</p>
+          </div>
+          <span class="text-xs font-bold text-brand-600 bg-green-50 px-2.5 py-1 rounded-full border border-green-200">
+            750 kcal বাকি
+          </span>
+        </div>
+
+        <!-- Meals Accordion -->
+        <div class="space-y-3">
+          <!-- Breakfast -->
+          <div class="bg-white border border-[#e8ede9] rounded-2xl p-4 shadow-sm space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-sm">🍳 Breakfast (সকালের নাস্তা)</span>
+              <span class="text-xs font-bold text-flame-600">390 kcal</span>
+            </div>
+            <ul class="text-xs text-gray-600 space-y-1 pl-2 border-l-2 border-brand-100">
+              <li>• 2 Roti (আটার রুটি) - 220 kcal</li>
+              <li>• 1 Egg (ডিম সিদ্ধ) - 78 kcal</li>
+              <li>• 1 cup Milk (দুধ) - 92 kcal</li>
+            </ul>
+          </div>
+
+          <!-- Lunch -->
+          <div class="bg-white border border-[#e8ede9] rounded-2xl p-4 shadow-sm space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-sm">🍛 Lunch (দুপুরের খাবার)</span>
+              <span class="text-xs font-bold text-flame-600">520 kcal</span>
+            </div>
+            <ul class="text-xs text-gray-600 space-y-1 pl-2 border-l-2 border-brand-100">
+              <li>• 2 cups Rice (সাদা ভাত) - 300 kcal</li>
+              <li>• 1 piece Rui Fish (রুই মাছ) - 150 kcal</li>
+              <li>• 1 bowl Dal (মসুর ডাল) - 70 kcal</li>
+            </ul>
+          </div>
+
+          <!-- Snack -->
+          <div class="bg-white border border-[#e8ede9] rounded-2xl p-4 shadow-sm space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-sm">☕ Snack (বিকালের নাস্তা)</span>
+              <span class="text-xs font-bold text-flame-600">340 kcal</span>
+            </div>
+            <ul class="text-xs text-gray-600 space-y-1 pl-2 border-l-2 border-brand-100">
+              <li>• Banana (পাকা কলা) - 105 kcal</li>
+              <li>• Biscuits (বিস্কুট) - 235 kcal</li>
+            </ul>
+          </div>
+
+          <!-- Dinner -->
+          <div class="bg-white border border-[#e8ede9] rounded-2xl p-4 shadow-sm space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-sm text-gray-500">🍲 Dinner (রাতের খাবার)</span>
+              <span class="text-xs text-gray-400">0 kcal</span>
+            </div>
+            <p class="text-xs text-gray-400 italic">No food added (এখনও যোগ করা হয়নি)</p>
+          </div>
+        </div>
+
+        <button onclick="navigateToAddFood('LUNCH')" class="w-full py-3 bg-brand-500 text-white font-bold rounded-2xl">
+          + খাবার যোগ করুন (+ Add Food)
+        </button>
+      </section>
+
+      <!-- ================= 5. PROGRESS SCREEN ================= -->
+      <section id="screen-progress" class="hidden space-y-4">
+        <div>
+          <h2 class="text-xl font-bold text-gray-900">অগ্রগতি ও রিপোর্ট (Progress)</h2>
+          <p class="text-xs text-gray-500">সাপ্তাহিক ক্যালোরি ও ওজনের সামগ্রিক চিত্র</p>
+        </div>
+
+        <!-- Weekly Calorie Chart -->
+        <div class="bg-white border border-[#e2e8e4] rounded-2xl p-4 shadow-sm space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-bold text-gray-800">🔥 সাপ্তাহিক ক্যালোরি (Weekly)</span>
+            <span class="text-xs bg-green-50 text-brand-600 px-2 py-0.5 rounded-full font-bold">গড়: 1,830 kcal</span>
+          </div>
+
+          <!-- CSS Bar Chart -->
+          <div class="flex items-end justify-between h-36 pt-4 pb-2 border-b border-gray-100 px-1">
+            <div class="flex flex-col items-center gap-1 w-8">
+              <div class="w-4 bg-brand-100 rounded-t-full" style="height: 75%"></div>
+              <span class="text-[10px] text-gray-500">Mon</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 w-8">
+              <div class="w-4 bg-flame-500 rounded-t-full" style="height: 85%"></div>
+              <span class="text-[10px] text-gray-500">Tue</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 w-8">
+              <div class="w-4 bg-brand-100 rounded-t-full" style="height: 70%"></div>
+              <span class="text-[10px] text-gray-500">Wed</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 w-8">
+              <div class="w-4 bg-brand-500 rounded-t-full" style="height: 52%"></div>
+              <span class="text-[10px] font-bold text-brand-500">Thu</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 w-8">
+              <div class="w-4 bg-brand-100 rounded-t-full" style="height: 80%"></div>
+              <span class="text-[10px] text-gray-500">Fri</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 w-8">
+              <div class="w-4 bg-flame-500 rounded-t-full" style="height: 90%"></div>
+              <span class="text-[10px] text-gray-500">Sat</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 w-8">
+              <div class="w-4 bg-brand-100 rounded-t-full" style="height: 78%"></div>
+              <span class="text-[10px] text-gray-500">Sun</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 text-xs text-gray-600 gap-1.5 pt-1">
+            <div>• Monday: 1,850 kcal</div>
+            <div>• Friday: 1,950 kcal</div>
+            <div>• Tuesday: 2,020 kcal</div>
+            <div>• Saturday: 2,100 kcal</div>
+            <div>• Wednesday: 1,760 kcal</div>
+            <div>• Sunday: 1,880 kcal</div>
+            <div class="font-bold text-brand-600">• Thursday (আজ): 1,250 kcal</div>
+          </div>
+        </div>
+
+        <!-- Weight Section -->
+        <div class="bg-white border border-[#e2e8e4] rounded-2xl p-4 shadow-sm space-y-3">
+          <h3 class="text-sm font-bold text-gray-800">⚖️ ওজন অগ্রগতি (Weight Progress)</h3>
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="bg-gray-50 p-2.5 rounded-xl">
+              <p class="text-gray-400">শুরু</p>
+              <p class="text-base font-bold text-gray-800">65 kg</p>
+            </div>
+            <div class="bg-green-50 p-2.5 rounded-xl border border-green-200">
+              <p class="text-brand-600">বর্তমান</p>
+              <p class="text-base font-bold text-brand-600">65 kg</p>
+            </div>
+            <div class="bg-orange-50 p-2.5 rounded-xl">
+              <p class="text-flame-600">লক্ষ্য</p>
+              <p class="text-base font-bold text-flame-600">60 kg</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 6. PROFILE SCREEN ================= -->
+      <section id="screen-profile" class="hidden space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center text-2xl">👤</div>
+          <div>
+            <h2 id="profileNameDisplay" class="text-lg font-bold text-gray-900">Ramim</h2>
+            <p class="text-xs text-brand-500 font-semibold">BanglaCal সদস্য</p>
+          </div>
+        </div>
+
+        <div class="bg-white border border-[#e2e8e4] rounded-2xl p-4 shadow-sm space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-gray-800">শারীরিক তথ্য ও লক্ষ্য</h3>
+            <button onclick="openProfileModal()" class="text-xs text-brand-600 font-bold px-2.5 py-1 bg-green-50 rounded-lg">
+              Edit Profile
+            </button>
+          </div>
+
+          <div class="text-xs space-y-2 text-gray-600">
+            <div class="flex justify-between py-1 border-b border-gray-50">
+              <span>Age (বয়স)</span>
+              <span id="profAge" class="font-bold text-gray-900">21</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-gray-50">
+              <span>Height (উচ্চতা)</span>
+              <span id="profHeight" class="font-bold text-gray-900">5'6"</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-gray-50">
+              <span>Weight (ওজন)</span>
+              <span id="profWeight" class="font-bold text-gray-900">65 kg</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-gray-50">
+              <span>Goal (লক্ষ্য)</span>
+              <span class="font-bold text-gray-900">Lose weight</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-gray-50">
+              <span>Activity level</span>
+              <span class="font-bold text-gray-900">Moderately active</span>
+            </div>
+            <div class="flex justify-between py-1 text-brand-600 font-bold">
+              <span>Daily calorie goal</span>
+              <span>2,000 kcal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="bg-white border border-[#e2e8e4] rounded-2xl p-4 shadow-sm space-y-3 text-xs">
+          <h3 class="text-sm font-bold text-gray-800">সেটিংস</h3>
+          <div class="flex justify-between items-center py-2 border-b border-gray-100">
+            <div>
+              <p class="font-bold text-gray-800">Language (ভাষা)</p>
+              <p class="text-[11px] text-gray-400">Bangla / English</p>
+            </div>
+            <button onclick="toggleLang()" class="px-2.5 py-1 bg-gray-100 rounded-full font-bold">বাংলা</button>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b border-gray-100">
+            <div>
+              <p class="font-bold text-gray-800">Notifications (বিজ্ঞপ্তি)</p>
+              <p class="text-[11px] text-gray-400">খাবারের অনুস্মারক</p>
+            </div>
+            <span class="text-brand-600 font-bold">চালু (On)</span>
+          </div>
+          <div class="flex justify-between items-center py-2">
+            <div>
+              <p class="font-bold text-gray-800">Dark Mode (ডার্ক মোড)</p>
+              <p class="text-[11px] text-gray-400">লাইট / ডার্ক থিম</p>
+            </div>
+            <span class="text-gray-400 font-bold">Off</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 w-full max-w-md bg-white border-t border-[#eaeaea] flex justify-around py-2 z-30">
+      <button onclick="switchTab('home')" class="nav-item flex flex-col items-center gap-1 text-brand-500 font-bold text-xs" data-target="home">
+        <span class="text-lg">🏠</span>
+        <span>হোম</span>
+      </button>
+      <button onclick="switchTab('diary')" class="nav-item flex flex-col items-center gap-1 text-gray-400 font-medium text-xs hover:text-brand-500" data-target="diary">
+        <span class="text-lg">📖</span>
+        <span>ডায়েরি</span>
+      </button>
+      <button onclick="switchTab('progress')" class="nav-item flex flex-col items-center gap-1 text-gray-400 font-medium text-xs hover:text-brand-500" data-target="progress">
+        <span class="text-lg">📈</span>
+        <span>অগ্রগতি</span>
+      </button>
+      <button onclick="switchTab('profile')" class="nav-item flex flex-col items-center gap-1 text-gray-400 font-medium text-xs hover:text-brand-500" data-target="profile">
+        <span class="text-lg">👤</span>
+        <span>প্রোফাইল</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- JavaScript App Logic -->
+  <script>
+    // State
+    const state = {
+      consumed: 1250,
+      goal: 2000,
+      protein: 65,
+      carbs: 160,
+      fat: 40,
+      foodItems: [
+        { id: 1, name: 'ভাত', icon: '🍚', qty: 2, unit: 'প্লেট', kcalPerUnit: 200, protein: 4, carbs: 44, fat: 1 },
+        { id: 2, name: 'রুই মাছ', icon: '🐟', qty: 1, unit: 'পিস', kcalPerUnit: 150, protein: 18, carbs: 0, fat: 8 },
+        { id: 3, name: 'ডাল', icon: '🥣', qty: 1, unit: 'বাটি', kcalPerUnit: 70, protein: 6, carbs: 10, fat: 2 }
+      ]
+    };
+
+    function switchTab(tabId) {
+      document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+      const activeScreen = document.getElementById(`screen-${tabId}`);
+      if (activeScreen) activeScreen.classList.remove('hidden');
+
+      // Update Nav active styling
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        if (btn.dataset.target === tabId) {
+          btn.className = 'nav-item flex flex-col items-center gap-1 text-brand-500 font-bold text-xs';
+        } else {
+          btn.className = 'nav-item flex flex-col items-center gap-1 text-gray-400 font-medium text-xs hover:text-brand-500';
+        }
+      });
+      window.scrollTo(0, 0);
+    }
+
+    function navigateToAddFood(meal) {
+      switchTab('add-food');
+    }
+
+    function setPromptText(text) {
+      document.getElementById('naturalFoodInput').value = text;
+    }
+
+    function analyzeFoodInput() {
+      const loading = document.getElementById('analyzeLoading');
+      const card = document.getElementById('analyzeResultCard');
+      loading.classList.remove('hidden');
+      card.classList.add('hidden');
+
+      setTimeout(() => {
+        loading.classList.add('hidden');
+        card.classList.remove('hidden');
+      }, 400);
+    }
+
+    function openConfirmationScreen() {
+      renderEditableFoods();
+      switchTab('confirm');
+    }
+
+    function renderEditableFoods() {
+      const container = document.getElementById('editableFoodsList');
+      container.innerHTML = '';
+
+      let totalKcal = 0;
+      let totalP = 0, totalC = 0, totalF = 0;
+
+      state.foodItems.forEach(item => {
+        const itemKcal = item.qty * item.kcalPerUnit;
+        totalKcal += itemKcal;
+        totalP += item.qty * item.protein;
+        totalC += item.qty * item.carbs;
+        totalF += item.qty * item.fat;
+
+        const card = document.createElement('div');
+        card.className = 'bg-white border border-gray-200 rounded-2xl p-3.5 shadow-sm space-y-2';
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-2.5">
+              <span class="text-2xl">${item.icon}</span>
+              <div>
+                <h4 class="font-bold text-sm text-gray-900">${item.name}</h4>
+                <p class="text-xs text-gray-400">একক: ${item.unit}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2 py-0.5 bg-orange-50 text-flame-600 rounded-full">~${itemKcal} kcal</span>
+              <button onclick="removeFoodItem(${item.id})" class="text-red-400 hover:text-red-600 p-1">🗑️</button>
+            </div>
+          </div>
+          <div class="flex justify-between items-center pt-1 border-t border-gray-50 text-xs">
+            <span class="text-gray-500 font-medium">পরিমাণ: ${item.qty} ${item.unit}</span>
+            <div class="flex items-center gap-2">
+              <button onclick="updateQty(${item.id}, -1)" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 font-bold flex items-center justify-center text-sm">-</button>
+              <span class="font-bold text-sm px-1">${item.qty}</span>
+              <button onclick="updateQty(${item.id}, 1)" class="w-7 h-7 rounded-full bg-green-100 hover:bg-green-200 text-brand-600 font-bold flex items-center justify-center text-sm">+</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.getElementById('confirmTotalKcal').innerText = `~${totalKcal} kcal`;
+      document.getElementById('confirmMacros').innerText = `P: ${totalP}g • C: ${totalC}g • F: ${totalF}g`;
+    }
+
+    function updateQty(id, delta) {
+      const item = state.foodItems.find(f => f.id === id);
+      if (item) {
+        item.qty = Math.max(1, item.qty + delta);
+        renderEditableFoods();
+      }
+    }
+
+    function removeFoodItem(id) {
+      state.foodItems = state.foodItems.filter(f => f.id !== id);
+      renderEditableFoods();
+    }
+
+    function promptAddAnotherFood() {
+      const name = prompt('খাবারের নাম লিখুন (যেমন: সালাদ, মিষ্টি, ডিম ভাজি):', 'সালাদ');
+      if (name) {
+        state.foodItems.push({
+          id: Date.now(),
+          name: name,
+          icon: '🥗',
+          qty: 1,
+          unit: 'বাটি',
+          kcalPerUnit: 50,
+          protein: 1,
+          carbs: 8,
+          fat: 1
+        });
+        renderEditableFoods();
+      }
+    }
+
+    function saveMealAndGoDiary(customKcal) {
+      const addedKcal = customKcal || state.foodItems.reduce((acc, f) => acc + (f.qty * f.kcalPerUnit), 0);
+      state.consumed += addedKcal;
+      const remaining = Math.max(0, state.goal - state.consumed);
+
+      document.getElementById('homeConsumedCal').innerText = `${state.consumed.toLocaleString()} kcal`;
+      document.getElementById('homeRemainingCal').innerText = remaining.toLocaleString();
+      document.getElementById('diaryTotalSummary').innerText = `${state.consumed.toLocaleString()} / 2,000 kcal`;
+
+      alert(`✅ দুপুরের খাবারে ${addedKcal} kcal সফলভাবে যোগ করা হয়েছে!`);
+      switchTab('diary');
+    }
+
+    function openProfileModal() {
+      const newName = prompt('নাম পরিবর্তন করুন:', 'Ramim');
+      if (newName) {
+        document.getElementById('profileNameDisplay').innerText = newName;
+      }
+    }
+
+    function toggleLang() {
+      alert('ভাষা পরিবর্তন সম্পন্ন (Language toggled)!');
+    }
+  </script>
+</body>
+</html>
